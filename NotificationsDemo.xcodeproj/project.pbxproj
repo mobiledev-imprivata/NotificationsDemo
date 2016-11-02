@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D62C82111DCA883A0083722C /* NotifManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62C82101DCA883A0083722C /* NotifManager.swift */; };
 		D684066D1DCA823800A4DCD7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D684066C1DCA823800A4DCD7 /* AppDelegate.swift */; };
 		D684066F1DCA823800A4DCD7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D684066E1DCA823800A4DCD7 /* ViewController.swift */; };
 		D68406721DCA823800A4DCD7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D68406701DCA823800A4DCD7 /* Main.storyboard */; };
@@ -16,6 +17,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D62C82101DCA883A0083722C /* NotifManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotifManager.swift; sourceTree = "<group>"; };
+		D62C82121DCA8B090083722C /* NotificationsDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationsDemo.entitlements; sourceTree = "<group>"; };
 		D68406691DCA823800A4DCD7 /* NotificationsDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotificationsDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D684066C1DCA823800A4DCD7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D684066E1DCA823800A4DCD7 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -56,7 +59,9 @@
 		D684066B1DCA823800A4DCD7 /* NotificationsDemo */ = {
 			isa = PBXGroup;
 			children = (
+				D62C82121DCA8B090083722C /* NotificationsDemo.entitlements */,
 				D684067E1DCA852D00A4DCD7 /* Logger.swift */,
+				D62C82101DCA883A0083722C /* NotifManager.swift */,
 				D684066C1DCA823800A4DCD7 /* AppDelegate.swift */,
 				D684066E1DCA823800A4DCD7 /* ViewController.swift */,
 				D68406701DCA823800A4DCD7 /* Main.storyboard */,
@@ -101,6 +106,14 @@
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = 4M5ZN5CV6L;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -140,6 +153,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D62C82111DCA883A0083722C /* NotifManager.swift in Sources */,
 				D684066F1DCA823800A4DCD7 /* ViewController.swift in Sources */,
 				D684067F1DCA852D00A4DCD7 /* Logger.swift in Sources */,
 				D684066D1DCA823800A4DCD7 /* AppDelegate.swift in Sources */,
@@ -263,6 +277,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = NotificationsDemo/NotificationsDemo.entitlements;
 				DEVELOPMENT_TEAM = 4M5ZN5CV6L;
 				INFOPLIST_FILE = NotificationsDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -277,6 +292,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = NotificationsDemo/NotificationsDemo.entitlements;
 				DEVELOPMENT_TEAM = 4M5ZN5CV6L;
 				INFOPLIST_FILE = NotificationsDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -306,6 +322,7 @@
 				D684067D1DCA823900A4DCD7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
