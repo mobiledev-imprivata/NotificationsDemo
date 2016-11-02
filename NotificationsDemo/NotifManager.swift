@@ -20,6 +20,10 @@ final class NotifManager {
     // singleton
     static let sharedInstance = NotifManager()
     
+    private var nLocalNotification = 0
+    
+    private var uiBackgroundTaskIdentifier: UIBackgroundTaskIdentifier = UIBackgroundTaskInvalid
+    
     private init() {}
     
     func requestAuthorization() {
@@ -42,6 +46,75 @@ final class NotifManager {
             UIApplication.shared.registerUserNotificationSettings(settings)
             UIApplication.shared.registerForRemoteNotifications()
         }
+    }
+    
+    func scheduleLocalNotification() {
+        if #available(iOS 10.0, *) {
+            let identifier = "localNotification_\(nLocalNotification)"
+            log("scheduling \(identifier)")
+            
+            nLocalNotification += 1
+            
+            let title = "Here's a challenge!"
+            let body = "Whatcha wanna do?"
+            
+            let content = UNMutableNotificationContent()
+            // content.categoryIdentifier = newCuddlePixCategoryName
+            content.title = title
+            content.body = body
+            
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            
+            let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+            
+            UNUserNotificationCenter.current().add(request) {
+                error in
+                if let error = error {
+                    log("error scheduling local notification \(error.localizedDescription)")
+                }
+            }
+        } else {
+            let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(5000)
+            beginBackgroundTask()
+            DispatchQueue.global().asyncAfter(deadline: deadline) {
+                self.scheduleDelayedLocalNotification()
+            }
+        }
+    }
+    
+    private func scheduleDelayedLocalNotification() {
+        log("scheduleDelayedLocalNotification")
+        
+        let title = "Here's a challenge!"
+        let body = "Whatcha wanna do?"
+        
+        if UIApplication.shared.applicationState == .active {
+            // TODO: do something when app is in foreground
+            log("show something in the foreground")
+            // showNotification(title, message: message)
+        } else {
+            let notification = UILocalNotification()
+            // notification.category = ...
+            notification.alertTitle = title
+            notification.alertBody = body
+            notification.fireDate = Date()
+            UIApplication.shared.scheduleLocalNotification(notification)
+        }
+        endBackgroundTask()
+    }
+    
+    private func beginBackgroundTask() {
+        uiBackgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask (expirationHandler: {
+            log("background task expired")
+            self.endBackgroundTask()
+        })
+        log("beginBackgroundTask \(uiBackgroundTaskIdentifier)")
+    }
+    
+    private func endBackgroundTask() {
+        log("endBackgroundTask \(uiBackgroundTaskIdentifier)")
+        UIApplication.shared.endBackgroundTask(uiBackgroundTaskIdentifier)
+        uiBackgroundTaskIdentifier = UIBackgroundTaskInvalid
     }
     
 }

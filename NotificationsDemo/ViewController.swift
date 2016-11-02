@@ -24,6 +24,7 @@ class ViewController: UIViewController {
 
     @IBAction func scheduleLocalNotification(_ sender: Any) {
         log("scheduleLocalNotification")
+        NotifManager.sharedInstance.scheduleLocalNotification()
     }
 
     @IBAction func removePendingNotifications(_ sender: Any) {
