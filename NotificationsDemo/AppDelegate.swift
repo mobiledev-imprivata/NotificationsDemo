@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +17,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // delegate must be assigned no later than here
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().delegate = self
+        }
+
         return true
     }
 
@@ -56,3 +63,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+@available(iOS 10.0, *)
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    // called when a notification is delivered to a foreground app
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler(.alert)
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        log("response received for \(response.actionIdentifier)")
+        if response.actionIdentifier == "com.apple.UNNotificationDefaultActionIdentifier" {
+            NotifManager.sharedInstance.showForegroundNotification(version: "10")
+        }
+        completionHandler()
+    }
+
+}
+
+@available(iOS, deprecated: 10.0)
+extension AppDelegate {
+    
+    func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
+        log("application didReceive notification")
+        NotifManager.sharedInstance.showForegroundNotification(version: "9")
+    }
+    
+    func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
+        log("application handleActionWithIdentifier \(identifier)")
+        completionHandler()
+    }
+    
+}

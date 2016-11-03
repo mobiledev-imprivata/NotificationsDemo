@@ -11,6 +11,8 @@ import UserNotifications
 
 final class NotifManager {
     
+    fileprivate let notificationsDemoCategoryName = "notificationsDemo"
+    
     enum Identifier: String {
         // for authentication challenge
         case Accept = "com.imprivata.Approve"
@@ -22,7 +24,7 @@ final class NotifManager {
     
     private var nLocalNotification = 0
     
-    private var uiBackgroundTaskIdentifier: UIBackgroundTaskIdentifier = UIBackgroundTaskInvalid
+    fileprivate var uiBackgroundTaskIdentifier: UIBackgroundTaskIdentifier = UIBackgroundTaskInvalid
     
     private init() {}
     
@@ -32,6 +34,12 @@ final class NotifManager {
                 granted, error in
                 if granted {
                     log("permission granted")
+                    
+                    let acceptAction = UNNotificationAction(identifier: Identifier.Accept.rawValue, title: Identifier.Accept.rawValue.replacingOccurrences(of: "com.imprivata.", with: ""), options: [])
+                    let rejectAction = UNNotificationAction(identifier: Identifier.Reject.rawValue, title: Identifier.Reject.rawValue.replacingOccurrences(of: "com.imprivata.", with: ""), options: [])
+                    let category = UNNotificationCategory(identifier: self.notificationsDemoCategoryName, actions: [acceptAction, rejectAction], intentIdentifiers: [], options: [])
+                    UNUserNotificationCenter.current().setNotificationCategories([category])
+                    
                     UIApplication.shared.registerForRemoteNotifications()
                 } else {
                     log("permission not granted")
@@ -42,28 +50,37 @@ final class NotifManager {
             }
         } else {
             let types: UIUserNotificationType = [.alert, .badge, .sound]
-            let settings = UIUserNotificationSettings(types: types, categories: nil)
+            
+            let acceptAction = createUserNotificationAction(Identifier.Accept)
+            let rejectAction = createUserNotificationAction(Identifier.Reject)
+            
+            let category = UIMutableUserNotificationCategory()
+            category.identifier = notificationsDemoCategoryName
+            category.setActions([acceptAction, rejectAction], for: .default)
+            category.setActions([acceptAction, rejectAction], for: .minimal)
+            
+            let settings = UIUserNotificationSettings(types: types, categories: [category])
             UIApplication.shared.registerUserNotificationSettings(settings)
             UIApplication.shared.registerForRemoteNotifications()
         }
     }
     
     func scheduleLocalNotification() {
+        let body = "Here's a challenge!"
+        let delay: TimeInterval = 5
+
         if #available(iOS 10.0, *) {
             let identifier = "localNotification_\(nLocalNotification)"
             log("scheduling \(identifier)")
             
             nLocalNotification += 1
-            
-            let title = "Here's a challenge!"
-            let body = "Whatcha wanna do?"
-            
+
             let content = UNMutableNotificationContent()
-            // content.categoryIdentifier = newCuddlePixCategoryName
-            content.title = title
+            content.categoryIdentifier = notificationsDemoCategoryName
+            content.title = "Hello, iOS 10!"
             content.body = body
             
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
             
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
             
@@ -74,47 +91,51 @@ final class NotifManager {
                 }
             }
         } else {
-            let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(5000)
-            beginBackgroundTask()
-            DispatchQueue.global().asyncAfter(deadline: deadline) {
-                self.scheduleDelayedLocalNotification()
-            }
-        }
-    }
-    
-    private func scheduleDelayedLocalNotification() {
-        log("scheduleDelayedLocalNotification")
-        
-        let title = "Here's a challenge!"
-        let body = "Whatcha wanna do?"
-        
-        if UIApplication.shared.applicationState == .active {
-            // TODO: do something when app is in foreground
-            log("show something in the foreground")
-            // showNotification(title, message: message)
-        } else {
             let notification = UILocalNotification()
-            // notification.category = ...
-            notification.alertTitle = title
+            notification.category = notificationsDemoCategoryName
+            notification.alertTitle = "Hello, iOS 9!"
             notification.alertBody = body
-            notification.fireDate = Date()
+            notification.fireDate = Date(timeIntervalSinceNow: delay)
             UIApplication.shared.scheduleLocalNotification(notification)
         }
-        endBackgroundTask()
+    }
+
+}
+
+@available(iOS, deprecated: 10.0)
+extension NotifManager {
+    
+    fileprivate func createUserNotificationAction(_ identifier: Identifier) -> UIMutableUserNotificationAction {
+        let action = UIMutableUserNotificationAction()
+        action.identifier = identifier.rawValue
+        action.title = identifier.rawValue.replacingOccurrences(of: "com.imprivata.", with: "")
+        action.activationMode = .background
+        action.isAuthenticationRequired = false
+        action.isDestructive = false
+        return action
     }
     
-    private func beginBackgroundTask() {
-        uiBackgroundTaskIdentifier = UIApplication.shared.beginBackgroundTask (expirationHandler: {
-            log("background task expired")
-            self.endBackgroundTask()
-        })
-        log("beginBackgroundTask \(uiBackgroundTaskIdentifier)")
-    }
-    
-    private func endBackgroundTask() {
-        log("endBackgroundTask \(uiBackgroundTaskIdentifier)")
-        UIApplication.shared.endBackgroundTask(uiBackgroundTaskIdentifier)
-        uiBackgroundTaskIdentifier = UIBackgroundTaskInvalid
+    func showForegroundNotification(version: String) {
+        log("showForegroundNotification")
+        
+        let denyAction = UIAlertAction(title: "Deny", style: .default) {
+            _ in
+            log("denied")
+        }
+        
+        let approveAction = UIAlertAction(title: "Approve", style: .default) {
+            _ in
+            log("approved")
+        }
+        
+        let title = "Hello, iOS \(version)!"
+        let message = "Here's a challenge!"
+        
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addAction(denyAction)
+        alertController.addAction(approveAction)
+        
+        UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true, completion: nil)
     }
     
 }
