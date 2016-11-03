@@ -83,6 +83,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
 @available(iOS, deprecated: 10.0)
 extension AppDelegate {
+
+    // local notifications
     
     func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
         log("application didReceive notification")
@@ -91,6 +93,20 @@ extension AppDelegate {
     
     func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
         log("application handleActionWithIdentifier \(identifier)")
+        completionHandler()
+    }
+    
+    // remote notifications
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
+        log("application didReceiveRemoteNotification")
+        NotifManager.sharedInstance.dumpNotificationUserInfo(userInfo)
+        NotifManager.sharedInstance.showForegroundNotification(version: "9")
+    }
+    
+    func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
+        log("application handleActionWithIdentifier \(identifier) forRemoteNotification")
+        NotifManager.sharedInstance.dumpNotificationUserInfo(userInfo)
         completionHandler()
     }
     

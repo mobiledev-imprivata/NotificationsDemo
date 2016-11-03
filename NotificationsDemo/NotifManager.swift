@@ -68,13 +68,13 @@ final class NotifManager {
     func scheduleLocalNotification() {
         let body = "Here's a challenge!"
         let delay: TimeInterval = 5
-
+        
         if #available(iOS 10.0, *) {
             let identifier = "localNotification_\(nLocalNotification)"
             log("scheduling \(identifier)")
             
             nLocalNotification += 1
-
+            
             let content = UNMutableNotificationContent()
             content.categoryIdentifier = notificationsDemoCategoryName
             content.title = "Hello, iOS 10!"
@@ -99,7 +99,7 @@ final class NotifManager {
             UIApplication.shared.scheduleLocalNotification(notification)
         }
     }
-
+    
 }
 
 @available(iOS, deprecated: 10.0)
@@ -136,6 +136,34 @@ extension NotifManager {
         alertController.addAction(approveAction)
         
         UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true, completion: nil)
+    }
+    
+}
+
+// used for debugging
+extension NotifManager {
+    
+    func dumpNotificationUserInfo(_ userInfo: [AnyHashable: Any]) {
+        log("dumpNotificationUserInfo")
+        dumpDictionary(userInfo as! [String:AnyObject], level: 0)
+        
+    }
+    
+    private func dumpDictionary(_ dict: [String:AnyObject], level: Int) {
+        let indent = String(repeating: " ", count: 2 * level)
+        for key in dict.keys {
+            let val = dict[key]
+            if val is String {
+                log("\(indent)\(key) => \(val!) (string)")
+            } else if val is Int {
+                log("\(indent)\(key) => \(val!) (number)")
+            } else if val is [String:AnyObject] {
+                log("\(indent)\(key) => (dict)")
+                dumpDictionary(val as! [String:AnyObject], level: level + 1)
+            } else {
+                log("\(indent)\(key) => (unknown)")
+            }
+        }
     }
     
 }
