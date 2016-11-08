@@ -67,15 +67,13 @@ final class NotifManager: NSObject {
     }
     
     func scheduleLocalNotification() {
-        let body = "Here's a challenge!"
+        nLocalNotification += 1
+        log("scheduleLocalNotification \(nLocalNotification)")
+
+        let body = "Here's local challenge \(nLocalNotification)!"
         let delay: TimeInterval = 5
         
         if #available(iOS 10.0, *) {
-            let identifier = "localNotification_\(nLocalNotification)"
-            log("scheduling \(identifier)")
-            
-            nLocalNotification += 1
-            
             let content = UNMutableNotificationContent()
             content.categoryIdentifier = notificationsDemoCategoryName
             content.title = "Hello, iOS 10!"
@@ -83,6 +81,7 @@ final class NotifManager: NSObject {
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
             
+            let identifier = "localNotification_\(nLocalNotification)"
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
             
             UNUserNotificationCenter.current().add(request) {
@@ -102,18 +101,36 @@ final class NotifManager: NSObject {
     }
     
     func removePendingNotifications() {
+        log("removePendingNotifications")
+        
         if #available(iOS 10.0, *) {
-
+            UNUserNotificationCenter.current().getPendingNotificationRequests {
+                requests in
+                log("\(requests.count) pending request(s)")
+                for request in requests {
+                    log("  \(request.identifier)")
+                }
+                UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+            }
         } else {
-            
+            UIApplication.shared.cancelAllLocalNotifications()
         }
     }
     
     func removeDeliveredNotifications() {
-        if #available(iOS 10.0, *) {
+        log("removeDeliveredNotifications")
         
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().getDeliveredNotifications {
+                notifications in
+                log("\(notifications.count) delivered notifications(s)")
+                for notification in notifications {
+                    log("  \(notification.request.identifier)")
+                }
+                UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+            }
         } else {
-            
+            UIApplication.shared.cancelAllLocalNotifications()
         }
     }
     
@@ -130,7 +147,8 @@ extension NotifManager: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         log("response received for \(response.actionIdentifier)")
         if response.actionIdentifier == "com.apple.UNNotificationDefaultActionIdentifier" {
-            NotifManager.sharedInstance.showForegroundNotification(version: "10")
+            let body = response.notification.request.content.body
+            NotifManager.sharedInstance.showForegroundNotification(version: "10", body: body)
         }
         completionHandler()
     }
@@ -150,7 +168,7 @@ extension NotifManager {
         return action
     }
     
-    func showForegroundNotification(version: String) {
+    func showForegroundNotification(version: String, body: String) {
         log("showForegroundNotification")
         
         let denyAction = UIAlertAction(title: "Deny", style: .default) {
@@ -164,9 +182,8 @@ extension NotifManager {
         }
         
         let title = "Hello, iOS \(version)!"
-        let message = "Here's a challenge!"
-        
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+
+        let alertController = UIAlertController(title: title, message: body, preferredStyle: .alert)
         alertController.addAction(denyAction)
         alertController.addAction(approveAction)
         

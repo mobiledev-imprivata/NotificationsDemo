@@ -70,7 +70,8 @@ extension AppDelegate {
     
     func application(_ application: UIApplication, didReceive notification: UILocalNotification) {
         log("application didReceive notification")
-        NotifManager.sharedInstance.showForegroundNotification(version: "9")
+        let body = notification.alertBody!
+        NotifManager.sharedInstance.showForegroundNotification(version: "9", body: body)
     }
     
     func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, for notification: UILocalNotification, completionHandler: @escaping () -> Void) {
@@ -83,7 +84,8 @@ extension AppDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
         log("application didReceiveRemoteNotification")
         NotifManager.sharedInstance.dumpNotificationUserInfo(userInfo)
-        NotifManager.sharedInstance.showForegroundNotification(version: "9")
+        // TODO: add body
+        NotifManager.sharedInstance.showForegroundNotification(version: "9", body: "blah")
     }
     
     func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
