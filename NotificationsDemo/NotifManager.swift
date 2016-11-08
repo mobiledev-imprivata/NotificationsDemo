@@ -100,6 +100,22 @@ final class NotifManager {
         }
     }
     
+    func removePendingNotifications() {
+        if #available(iOS 10.0, *) {
+
+        } else {
+            
+        }
+    }
+    
+    func removeDeliveredNotifications() {
+        if #available(iOS 10.0, *) {
+        
+        } else {
+            
+        }
+    }
+    
 }
 
 @available(iOS, deprecated: 10.0)
