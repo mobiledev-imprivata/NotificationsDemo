@@ -9,7 +9,8 @@
 import UIKit
 import UserNotifications
 
-final class NotifManager {
+// needs to inherit from NSObject so it can conform to UNUserNotificationCenterDelegate
+final class NotifManager: NSObject {
     
     fileprivate let notificationsDemoCategoryName = "notificationsDemo"
     
@@ -26,7 +27,7 @@ final class NotifManager {
     
     fileprivate var uiBackgroundTaskIdentifier: UIBackgroundTaskIdentifier = UIBackgroundTaskInvalid
     
-    private init() {}
+    private override init() {}
     
     func requestAuthorization() {
         if #available(iOS 10.0, *) {
@@ -114,6 +115,24 @@ final class NotifManager {
         } else {
             
         }
+    }
+    
+}
+
+@available(iOS 10.0, *)
+extension NotifManager: UNUserNotificationCenterDelegate {
+    
+    // called when a notification is delivered to a foreground app
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler(.alert)
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        log("response received for \(response.actionIdentifier)")
+        if response.actionIdentifier == "com.apple.UNNotificationDefaultActionIdentifier" {
+            NotifManager.sharedInstance.showForegroundNotification(version: "10")
+        }
+        completionHandler()
     }
     
 }

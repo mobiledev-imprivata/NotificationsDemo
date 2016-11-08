@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // delegate must be assigned no later than here
         if #available(iOS 10.0, *) {
-            UNUserNotificationCenter.current().delegate = self
+            UNUserNotificationCenter.current().delegate = NotifManager.sharedInstance
         }
 
         return true
@@ -59,24 +59,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         log("didFailToRegisterForRemoteNotificationsWithError \(error.localizedDescription)")
-    }
-
-}
-
-@available(iOS 10.0, *)
-extension AppDelegate: UNUserNotificationCenterDelegate {
-    
-    // called when a notification is delivered to a foreground app
-    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler(.alert)
-    }
-    
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        log("response received for \(response.actionIdentifier)")
-        if response.actionIdentifier == "com.apple.UNNotificationDefaultActionIdentifier" {
-            NotifManager.sharedInstance.showForegroundNotification(version: "10")
-        }
-        completionHandler()
     }
 
 }
