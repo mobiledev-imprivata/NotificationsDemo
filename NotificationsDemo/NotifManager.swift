@@ -70,13 +70,13 @@ final class NotifManager: NSObject {
         nLocalNotification += 1
         log("scheduleLocalNotification \(nLocalNotification)")
 
-        let body = "Here's local challenge \(nLocalNotification)!"
+        let body = "Here's local challenge \(nLocalNotification)"
         let delay: TimeInterval = 5
         
         if #available(iOS 10.0, *) {
             let content = UNMutableNotificationContent()
             content.categoryIdentifier = notificationsDemoCategoryName
-            content.title = "Hello, iOS 10!"
+            content.title = "Hello, iOS 10"
             content.body = body
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
@@ -93,7 +93,7 @@ final class NotifManager: NSObject {
         } else {
             let notification = UILocalNotification()
             notification.category = notificationsDemoCategoryName
-            notification.alertTitle = "Hello, iOS 9!"
+            notification.alertTitle = "Hello, iOS 9"
             notification.alertBody = body
             notification.fireDate = Date(timeIntervalSinceNow: delay)
             UIApplication.shared.scheduleLocalNotification(notification)
@@ -141,6 +141,7 @@ extension NotifManager: UNUserNotificationCenterDelegate {
     
     // called when a notification is delivered to a foreground app
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        log("notification received for \(notification.request.identifier) while in foreground")
         completionHandler(.alert)
     }
     
@@ -181,7 +182,7 @@ extension NotifManager {
             log("approved")
         }
         
-        let title = "Hello, iOS \(version)!"
+        let title = "Hello, iOS \(version)"
 
         let alertController = UIAlertController(title: title, message: body, preferredStyle: .alert)
         alertController.addAction(denyAction)

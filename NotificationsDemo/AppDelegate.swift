@@ -18,6 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
+        log("application didFinishLaunchingWithOptions")
+        
         // delegate must be assigned no later than here
         if #available(iOS 10.0, *) {
             UNUserNotificationCenter.current().delegate = NotifManager.sharedInstance
@@ -84,8 +86,24 @@ extension AppDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
         log("application didReceiveRemoteNotification")
         NotifManager.sharedInstance.dumpNotificationUserInfo(userInfo)
-        // TODO: add body
-        NotifManager.sharedInstance.showForegroundNotification(version: "9", body: "blah")
+        
+        guard let aps = userInfo["aps"] as? [String:Any] else {return }
+        
+        if let contentAvailable = aps["content-available"] as? Int, contentAvailable == 1 {
+            log("received silent push notification")
+            return
+        }
+        
+        let body: String
+        
+        if let alert = aps["alert"] as? [String:Any],
+            let alertBody = alert["body"] as? String {
+            body = alertBody
+        } else {
+            body = "wtf?"
+        }
+        
+        NotifManager.sharedInstance.showForegroundNotification(version: "9", body: body)
     }
     
     func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) {
